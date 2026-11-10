@@ -1,0 +1,47 @@
+name: Maven Build Test Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build-test-deploy:
+
+    runs-on: testrunner
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check Java and Maven
+        run: |
+          java -version
+          mvn -version
+
+      - name: Maven Build and Test
+        run: |
+          mvn clean test package
+
+      - name: Verify JAR
+        run: |
+          ls -lh target/
+          test -f target/maven-demo-1.0.0.jar
+
+      - name: Deploy Application
+        run: |
+          mkdir -p /opt/maven-app
+
+          cp target/maven-demo-1.0.0.jar \
+          /opt/maven-app/maven-demo.jar
+
+          echo "Deployment successful"
+
+      - name: Verify Deployment
+        run: |
+          ls -lh /opt/maven-app/
+
+          java -jar /opt/maven-app/maven-demo.jar
